@@ -1,13 +1,14 @@
 const { json } = require('body-parser');
 const { Console } = require('console');
 const express = require('express');
-// const multer = require('multer');
+const multer = require('multer');
 const app = express();
 
 app.use(express.json())
-// const uploadConfig = require('./upload/uploadConfig')
+const uploadConfig = require('./upload/uploadconfig')
 
-// const uploadMiddleware = multer(uploadConfig);
+const uploadMiddleware = multer(uploadConfig);
+app.use('/imagens',express.static(uploadConfig.directory));
 
 
 function monitorarRequisicoes(request,response,next){
@@ -24,13 +25,13 @@ function monitorarRequisicoes(request,response,next){
 
 app.use(monitorarRequisicoes);
 
-app.get('/disciplinas', monitorarRequisicoes, (request, response)=>{
+app.get('/disciplinas', (request, response)=>{
     return response.json({
         message: "Nessa rota devo consultar uma disciplina!"
     });
 });
 
-app.post('/disciplinas',(request, response)=>{
+app.post('/disciplinas',uploadMiddleware.single('avatar'), (request, response)=>{
     const body = request.body;
     return response.json(body)
 });
@@ -56,19 +57,18 @@ app.delete('/disciplinas',(request, response)=>{
 
 
 
-// app.use('/imagens',express.static(uploadConfig.directory));
 
-// app.post('/perfil', uploadMiddleware.single('avatar'), function(request,response,next){
+app.post('/perfil', uploadMiddleware.single('avatar'), function(request,response,next){
 
-// })
+})
 
-// app.post('/fotos/upload', uploadMiddleware.array('images', 12), function(request,response,next){
+app.post('/fotos/upload', uploadMiddleware.array('images', 12), function(request,response,next){
     
-// })
+})
 
-// let cpUpload = uploadMiddleware.fields([{name:'avatar', maxCount: 1}, {name:'galeria', maxCount: 8}])
-// app.post('/imagem-perfil', cpUpload,function(request,response,next){
+let cpUpload = uploadMiddleware.fields([{name:'avatar', maxCount: 1}, {name:'galeria', maxCount: 8}])
+app.post('/imagem-perfil', cpUpload,function(request,response,next){
 
-// })
+})
 
 app.listen(3000);
